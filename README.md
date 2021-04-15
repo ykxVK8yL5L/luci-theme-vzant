@@ -1,5 +1,3 @@
-由于本人系统问题 再加上git用的不熟导致文件夹内很多隐藏文件  使用前请删除
-
 # luci-theme-vzant
 
 # 演示视频：https://youtu.be/wNvLsQYLMWw
