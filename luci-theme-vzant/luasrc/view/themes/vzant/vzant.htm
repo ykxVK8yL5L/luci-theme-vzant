@@ -204,7 +204,7 @@
             end
 
             if ucichanges > 0 then
-                write('<button type="button" class="btn btn-primary" onclick="openWindow(\'Save Changes\',\'%s?redir=%s\')">%s:<span class="badge bg-secondary">%d</span> </button>' %{
+                write('<van-button type="primary" url="%s?redir=%s" block>%s:<span class="badge bg-secondary">%d</span></van-button>' %{
                     url(category, 'uci/changes'),
                     http.urlencode(http.formvalue('redir') or table.concat(disp.context.request, "/")),
                     translate('Unsaved Changes'),
