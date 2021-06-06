@@ -290,10 +290,13 @@
   <van-cell v-for="item in favourites" :title="item.title" :data-name="item.name" :data-title="item.title" :data-url="item.src" is-link></van-cell>
   </van-cell-group>
  <% render_topmenu() %>
-  <van-cell-group title="主题设置">
+
+
+ <van-cell-group title="主题设置">
   <van-cell  title="首页显示" url='<%=luci.dispatcher.build_url("admin","status","vzant", "show")%>' is-link></van-cell>
   <van-cell  title="首页隐藏" url='<%=luci.dispatcher.build_url("admin","status","vzant", "hide")%>' is-link></van-cell>
   </van-cell-group>
+
  <% render_logout() %>
 
 
