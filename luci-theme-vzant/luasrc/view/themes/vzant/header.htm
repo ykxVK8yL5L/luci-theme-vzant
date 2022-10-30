@@ -182,25 +182,7 @@
 		</noscript>
 <div id="app">
 	<van-nav-bar  title="<%= node.title %>"  left-text="返回"  left-arrow  @click-left="onClickLeft"></van-nav-bar>
-</div>
-<div id="maincontent" class="container" style="padding:20px;">
-			<% if category then render_tabmenu(category, cattree) end %>
+	<div id="maincontent" class="container" style="padding:20px;">
+		<% if category then render_tabmenu(category, cattree) end %>
 
-<script src="<%=media%>/js/vue.min.js"></script>
-<script src="<%=media%>/vant/vant.min.js"></script>
- <script>
-    // 初始化 Vue 实例
-    new Vue({
-      el: '#app',
-      data() {
-        return {
-        };
-      },
 
-      methods: {
-		onClickLeft() {
-		      window.location.href='<%=luci.dispatcher.build_url("admin/status/vzant")%>';
-		    },
-      }
-    });
-  </script>
