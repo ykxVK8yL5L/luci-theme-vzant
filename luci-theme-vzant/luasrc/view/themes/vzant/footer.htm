@@ -7,6 +7,8 @@
 	local categories = disp.node_childs(tree)
 %>
    <footer>
+	
+	   </div>
     <a href="https://github.com/openwrt/luci">Powered by <%= ver.luciname %> (<%= ver.luciversion %>)</a> / <%= ver.distversion %>
     <% if #categories > 1 then %>
      <ul class="breadcrumb pull-right" id="modemenu">
@@ -16,6 +18,25 @@
      </ul>
     <% end %>
    </footer>
+<script src="<%=media%>/js/vue.min.js"></script>
+<script src="<%=media%>/vant/vant.min.js"></script>
+ <script>
+    // 初始化 Vue 实例
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+        };
+      },
+
+      methods: {
+		onClickLeft() {
+		      window.location.href='<%=luci.dispatcher.build_url("admin/status/vzant")%>';
+		    },
+      }
+    });
+  </script>		    
+		    
  </body>
 </html>
 
