@@ -51,7 +51,7 @@
 		local childs = disp.node_childs(node)
 		if #childs > 0 then
 			if level > 2 then
-				write('<ul class="tabs">')
+				write('<van-grid clickable>')
 			end
 
 			local selected_node
@@ -66,7 +66,7 @@
 				end
 
 				if level > 2 then
-					write('<li class="tabmenu-item-%s %s"><a href="%s">%s</a></li>' %{
+					write('<van-grid-item name="%s" class="%s" url="%s" text="%s"></van-grid-item>' %{
 						v, (nnode._menu_selected or (node.leaf and v == leaf)) and 'active' or '',
 						nodeurl(prefix, v, nnode.query),
 						striptags(translate(nnode.title))
@@ -75,7 +75,7 @@
 			end
 
 			if level > 2 then
-				write('</ul>')
+				write('</van-grid>')
 			end
 
 			if selected_node then
