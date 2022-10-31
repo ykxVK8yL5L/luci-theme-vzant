@@ -182,7 +182,9 @@
 		</noscript>
 <div id="app">
 	<van-nav-bar  title="<%= node.title %>"  left-text="返回"  left-arrow  @click-left="onClickLeft"></van-nav-bar>
-	<div id="maincontent" class="container" style="padding:20px;">
-		<% if category then render_tabmenu(category, cattree) end %>
+	<% if category then render_tabmenu(category, cattree) end %>
+</div>
+<div id="maincontent" class="container" style="padding:20px;">
+		
 
 
