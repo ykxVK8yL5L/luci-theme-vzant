@@ -3,7 +3,7 @@
 ## 经测 以feeds形式加入 在menuconfig 中找不到包  需要拷贝到pakcage下
 # 演示视频：https://youtu.be/wNvLsQYLMWw
 
-下载地址:https://github.com/ykxVK8yL5L/luci-theme-vzant/raw/main/luci-theme-vzant_git-21.156.46961-6f0e710-1_all.ipk
+随着系统更新 原IPK已经不能使用 建议编译到固件
 
 
 ![luc-theme-vzant](https://github.com/ykxVK8yL5L/luci-theme-vzant/raw/main/ScreenShot.png)
