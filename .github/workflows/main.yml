@@ -39,21 +39,21 @@ jobs:
         - name: Build Package
           run: |
             echo "src-link vbeauty $GITHUB_WORKSPACE/" > openwrt-sdk/feeds.conf
-            echo 'CONFIG_PACKAGE_luci-theme-vbeauty=y
+            echo 'CONFIG_PACKAGE_luci-theme-vzant=y
             ' >> openwrt-sdk/.config
             cd openwrt-sdk
             cat feeds.conf.default >> feeds.conf
             cat feeds.conf
             ./scripts/feeds update -a > /dev/null
             make defconfig
-            ./scripts/feeds install -d y -p "vbeauty" -f -a
-            make package/luci-theme-vbeauty/compile V=s
+            ./scripts/feeds install -d y -p "vzant" -f -a
+            make package/luci-theme-vzant/compile V=s
             tree bin/packages/
         - name: Archive luci packages
           uses: actions/upload-artifact@v2
           with:
             name: luci-theme-vbeauty-openwrt-${{ matrix.target.arch }}
-            path: openwrt-sdk/bin/packages/*/vbeauty/luci-theme-vbeauty*.ipk
+            path: openwrt-sdk/bin/packages/*/vzant/luci-theme-vbeauty*.ipk
             if-no-files-found: error
         - name: Upload luci packages to GitHub Release
           uses: svenstaro/upload-release-action@v2
@@ -61,5 +61,5 @@ jobs:
             repo_token: ${{ secrets.GITHUB_TOKEN }}
             file_glob: true
             overwrite: true
-            file: openwrt-sdk/bin/packages/*/vbeauty/luci-*.ipk
+            file: openwrt-sdk/bin/packages/*/vzant/luci-*.ipk
             tag: "refs/tags/${{ github.event.inputs.tag }}"
