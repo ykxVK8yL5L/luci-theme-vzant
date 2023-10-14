@@ -51,7 +51,7 @@ jobs:
           uses: actions/upload-artifact@v2
           with:
             name: luci-theme-vbeauty-openwrt-${{ matrix.target.arch }}
-            path: openwrt-sdk/bin/packages/*/vzant/luci-theme-vbeauty*.ipk
+            path: openwrt-sdk/bin/packages/*/vzant/luci-theme-vzant*.ipk
             if-no-files-found: error
         - name: Upload luci packages to GitHub Release
           uses: svenstaro/upload-release-action@v2
