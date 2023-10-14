@@ -36,7 +36,7 @@ jobs:
             mv -f openwrt-sdk-* openwrt-sdk
         - name: Build Package
           run: |
-            echo "src-link vbeauty $GITHUB_WORKSPACE/" > openwrt-sdk/feeds.conf
+            echo "src-link vzant $GITHUB_WORKSPACE/" > openwrt-sdk/feeds.conf
             echo 'CONFIG_PACKAGE_luci-theme-vzant=y
             ' >> openwrt-sdk/.config
             cd openwrt-sdk
