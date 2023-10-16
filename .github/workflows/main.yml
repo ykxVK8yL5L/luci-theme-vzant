@@ -18,7 +18,7 @@ jobs:
           target:
             - arch: "aarch64_generic"  # 目标架构
               sdk: "https://downloads.openwrt.org/releases/22.03.2/targets/rockchip/armv8/openwrt-sdk-22.03.2-rockchip-armv8_gcc-11.2.0_musl.Linux-x86_64.tar.xz"  # OpenWrt SDK的下载链接
-              feeds: "https://raw.githubusercontent.com/openwrt/openwrt/main/feeds.conf.default"  # 第三方feeds的下载链接
+              feeds: "https://raw.githubusercontent.com/openwrt/openwrt/openwrt-22.03/feeds.conf.default"  # 第三方feeds的下载链接，注意分支要选对
               name: "vzant"  # 第三方ipk软件包简称，通配符匹配用
               url: "https://github.com/ykxVK8yL5L/luci-theme-vzant"  # 配置feeds.conf拉取第三方ipk软件包链接
               package: "luci-theme-vzant"  # 第三方ipk软件包名称
@@ -41,12 +41,13 @@ jobs:
         - name: 编译插件
           run: |
             cd openwrt-sdk  # 进入OpenWrt SDK目录
-            # cat feeds.conf.default > feeds.conf  # 复制feeds.conf.default到feeds.conf
+            # cat feeds.conf.default > feeds.conf  # 复制sdk自带的默认feeds.conf.default到feeds.conf
             curl -fsSL ${{ matrix.target.feeds }} > feeds.conf  # 拉取第三方feeds.conf.default到feeds.conf
+            # echo "src-link ${{ matrix.target.name }} $GITHUB_WORKSPACE/" >> ./feeds.conf # 如果ipk插件安装包在本项目主目录里，那么直接读取主目录关于ipk通配项的链接到feeds.conf
             echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }}" >> ./feeds.conf  # 配置feeds.conf拉取第三方ipk软件包
             cat feeds.conf  # 读取feeds.conf内容
             ./scripts/feeds update -a > /dev/null  # 更新feeds软件包
-            echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=m' > ./.config  # 勾选配置项构建编译条件
+            echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=y' > ./.config  # 勾选配置项构建编译条件
             ./scripts/feeds install -d y -f -a  # 安装feeds依赖的软件包
             make defconfig  # 配置默认配置
             make package/${{ matrix.target.package }}/compile V=s  # 编译ipk软件包
