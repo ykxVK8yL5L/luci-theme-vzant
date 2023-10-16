@@ -47,7 +47,7 @@ jobs:
             echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }}" >> ./feeds.conf  # 配置feeds.conf拉取第三方ipk软件包
             cat feeds.conf  # 读取feeds.conf内容
             ./scripts/feeds update -a > /dev/null  # 更新feeds软件包
-            echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=m' > ./.config  # 勾选配置项构建编译条件
+            echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=y' > ./.config  # 勾选配置项构建编译条件
             ./scripts/feeds install -d y -f -a  # 安装feeds依赖的软件包
             make defconfig  # 配置默认配置
             make package/${{ matrix.target.package }}/compile V=s  # 编译ipk软件包
