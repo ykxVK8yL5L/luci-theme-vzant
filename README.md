@@ -14,7 +14,7 @@ CONFIG_PACKAGE_luci-theme-vzant=y
 
 - 【如果在menuconfig 中找不到包  需要拷贝到pakcage下】
 
-- 需要编译自己的ipk，需要到workflows/main.yml文件里修改配置
+- 需要编译自己的ipk，需要到workflows/compile-package.yml文件里修改配置
   
 - 第24行：arch 是目标的架构，可以自己修改
 - 第25行：sdk 是SDK的x86_64的下载链接，不同架构可以自己修改
