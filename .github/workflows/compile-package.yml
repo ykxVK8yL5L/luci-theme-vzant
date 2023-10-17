@@ -51,9 +51,9 @@ jobs:
             # echo "src-link ${{ matrix.target.name }} $GITHUB_WORKSPACE/" >> ./feeds.conf.default  # 如果ipk插件安装包在本项目主目录里，那么直接读取主目录关于ipk通配项的链接到feeds.conf.default
             echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }} ${{ matrix.target.branches }}" >> ./feeds.conf.default  # 配置feeds.conf.default拉取第三方ipk软件包，仅支持一级目录
             cat feeds.conf.default  # 读取feeds.conf.default内容
-            ./scripts/feeds update -a  # 更新feeds软件包
+            ./scripts/feeds update -f -a  # 更新feeds软件包
             echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=y' > ./.config  # 勾选配置项构建编译条件
-            ./scripts/feeds install -d y -f -a  # 安装feeds依赖的软件包
+            ./scripts/feeds install -f -a  # 安装feeds依赖的软件包
 
         - name: 编译ipk插件
           run: |
