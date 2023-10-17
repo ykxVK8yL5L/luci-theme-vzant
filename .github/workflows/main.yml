@@ -3,6 +3,11 @@ name: compile-package
 on:
   repository_dispatch:  # 当通过 repository_dispatch 事件触发工作流程时执行
   workflow_dispatch:  # 当手动触发工作流程时执行
+#    inputs:
+#      tag:
+#        description: 'Tag to release'
+#        required: true
+#        default: 'v0.0.1'  #手动点击Run workflow触发编译前，可以手动修改release显示的默认版本号
 #  schedule:
 #    - cron: '0 18 * * 5'  # 定时触发
 #  watch:
@@ -18,9 +23,10 @@ jobs:
           target:
             - arch: "aarch64_generic"  # 目标架构
               sdk: "https://downloads.openwrt.org/releases/22.03.2/targets/rockchip/armv8/openwrt-sdk-22.03.2-rockchip-armv8_gcc-11.2.0_musl.Linux-x86_64.tar.xz"  # OpenWrt SDK的下载链接
-              feeds: "https://raw.githubusercontent.com/openwrt/openwrt/openwrt-22.03/feeds.conf.default"  # 第三方feeds的下载链接，注意分支要选对
+              feeds: "https://raw.githubusercontent.com/openwrt/openwrt/openwrt-22.03/feeds.conf.default"  # 第三方feeds.conf.default的下载链接，注意分支要选对
               name: "vzant"  # 第三方ipk软件包简称，通配符匹配用
-              url: "https://github.com/ykxVK8yL5L/luci-theme-vzant"  # 配置feeds.conf拉取第三方ipk软件包链接
+              url: "https://github.com/ykxVK8yL5L/luci-theme-vzant.git"  # 配置feeds.conf.default拉取第三方ipk软件包链接，仅支持一级目录
+              branches: "main" # 分支
               package: "luci-theme-vzant"  # 第三方ipk软件包名称
 
       steps:
@@ -38,25 +44,28 @@ jobs:
             xz -q -d openwrt-sdk.tar.xz && tar -xvf openwrt-sdk.tar  # 解压OpenWrt SDK
             mv -f openwrt-sdk-* openwrt-sdk  # 重命名SDK目录为 openwrt-sdk
 
-        - name: 编译插件
+        - name: 配置更新
           run: |
             cd openwrt-sdk  # 进入OpenWrt SDK目录
-            # cat feeds.conf.default > feeds.conf  # 复制sdk自带的默认feeds.conf.default到feeds.conf
-            curl -fsSL ${{ matrix.target.feeds }} > feeds.conf  # 拉取第三方feeds.conf.default到feeds.conf
-            # echo "src-link ${{ matrix.target.name }} $GITHUB_WORKSPACE/" >> ./feeds.conf # 如果ipk插件安装包在本项目主目录里，那么直接读取主目录关于ipk通配项的链接到feeds.conf
-            echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }}" >> ./feeds.conf  # 配置feeds.conf拉取第三方ipk软件包
-            cat feeds.conf  # 读取feeds.conf内容
-            ./scripts/feeds update -a > /dev/null  # 更新feeds软件包
+            curl -fsSL ${{ matrix.target.feeds }} > feeds.conf.default  # 拉取第三方feeds.conf.default到feeds.conf.default
+            # echo "src-link ${{ matrix.target.name }} $GITHUB_WORKSPACE/" >> ./feeds.conf.default  # 如果ipk插件安装包在本项目主目录里，那么直接读取主目录关于ipk通配项的链接到feeds.conf.default
+            echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }} ${{ matrix.target.branches }}" >> ./feeds.conf.default  # 配置feeds.conf.default拉取第三方ipk软件包，仅支持一级目录
+            cat feeds.conf.default  # 读取feeds.conf.default内容
+            ./scripts/feeds update -a  # 更新feeds软件包
             echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=y' > ./.config  # 勾选配置项构建编译条件
             ./scripts/feeds install -d y -f -a  # 安装feeds依赖的软件包
-            make defconfig  # 配置默认配置
+
+        - name: 编译ipk插件
+          run: |
+            cd openwrt-sdk  # 进入OpenWrt SDK目录
+            make defconfig  # 读取配置
             make package/${{ matrix.target.package }}/compile V=s  # 编译ipk软件包
             tree bin/packages/  # 显示生成的软件包目录结构
 
         - name: 整理文件
           run: |
             mkdir -p firmware  # 创建firmware文件夹
-            cp openwrt-sdk/bin/packages/*/*/*${{ matrix.target.name }}* ./firmware/  # 拷贝ipk文件到firmware文件夹
+            find openwrt-sdk/bin/packages/ -type f -name "*${{ matrix.target.name }}*" -exec cp {} ./firmware/ \;  # 拷贝ipk文件到firmware文件夹
 
         - name: 上传固件目录
           uses: actions/upload-artifact@main  # 使用 actions/upload-artifact 操作来将构建的软件包存档
@@ -68,8 +77,9 @@ jobs:
         - name: 上传ipk发布
           uses: svenstaro/upload-release-action@master  # 使用 svenstaro/upload-release-action 操作来上传软件包到GitHub Release
           with:
-            repo_token: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub令牌进行身份验证，后面GITHUB_TOKEN数字改成自己的令牌名称
+            repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 使用GitHub令牌进行身份验证，，后面PERSONAL_ACCESS_TOKEN改成自己的令牌名称
             file_glob: true  # 匹配通配符以选择要上传的文件
             overwrite: true  # 如果已存在具有相同名称的文件，则覆盖它
             file: ./firmware/*.*  # 要上传的文件，使用通配符匹配指定
+            # tag: "refs/tags/${{ matrix.target.package }}-${{ github.event.inputs.tag }}"  # 上传到GitHub Release的标签名称，包含一个变量，带release显示的版本号
             tag: "refs/tags/${{ matrix.target.package }}"  # 上传到GitHub Release的标签名称，包含一个变量
