@@ -65,7 +65,7 @@ jobs:
           run: |
             cd openwrt-sdk  # 进入OpenWrt SDK目录
             make defconfig  # 读取配置
-            make package/${{ matrix.target.package }}/compile -j$(($(nproc)+1))  # 编译ipk软件包
+            make package/${{ matrix.target.package }}/compile -j$(($(nproc)+1)) || make package/${{ matrix.target.package }}/compile -j1 V=s  # 编译ipk软件包
             tree bin/packages/  # 显示生成的软件包目录结构
 
         - name: 整理文件
