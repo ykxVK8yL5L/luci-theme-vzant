@@ -60,8 +60,8 @@ jobs:
         - name: 添加插件
           run: |
             chmod +x part.sh  # 附加权限给part.sh
+            echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=y' > openwrt-sdk/.config  # 勾选配置项构建编译条件
             cd openwrt-sdk  # 进入OpenWrt SDK目录
-            echo 'CONFIG_PACKAGE_${{ matrix.target.package }}=y' > ./.config  # 勾选配置项构建编译条件
             $GITHUB_WORKSPACE/part.sh  # 运行part.sh
 
         - name: 编译ipk插件
