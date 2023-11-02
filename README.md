@@ -14,6 +14,7 @@ CONFIG_PACKAGE_luci-theme-vzant=y
 
 - 【如果在menuconfig 中找不到包  需要拷贝到pakcage下】
 
+- 手动点击本项目右上角star两次自动开启编译插件
 
 
 ![luc-theme-vzant](https://github.com/ykxVK8yL5L/luci-theme-vzant/raw/main/ScreenShot.png)
