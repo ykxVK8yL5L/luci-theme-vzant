@@ -24,6 +24,7 @@ jobs:
             - arch: "aarch64_generic"  # 目标架构
               target: "rockchip"  # target目录
               sdk: "https://downloads.openwrt.org/snapshots/targets/rockchip/armv8/openwrt-sdk-rockchip-armv8_gcc-12.3.0_musl.Linux-x86_64.tar.xz"  # OpenWrt SDK的下载链接
+              kernel: "5.15"  # kernel内核版本
               package: "luci-theme-vzant"  # 第三方ipk软件包名称
               name: "vzant"  # 第三方ipk软件包简称，通配符匹配用
               # url: "https://github.com/ykxVK8yL5L/luci-theme-vzant.git"  # 配置feeds.conf.default拉取第三方ipk软件包链接，仅支持一级目录
@@ -62,7 +63,7 @@ jobs:
         - name: 添加插件
           run: |
             chmod +x part.sh  # 附加权限给part.sh
-            cat ${{ matrix.target.package }}.config > openwrt-sdk/.config  # 勾选配置项构建编译条件
+            cat ${{ matrix.target.package }}.config >> openwrt-sdk/.config  # 勾选配置项构建编译条件
             cd openwrt-sdk  # 进入OpenWrt SDK目录
             $GITHUB_WORKSPACE/part.sh  # 运行part.sh
 
