@@ -1,4 +1,4 @@
-name: luci-theme-vzant_5.15
+name: luci-theme-vzant
 
 on:
   repository_dispatch:  # 当通过 repository_dispatch 事件触发工作流程时执行
