@@ -53,6 +53,8 @@ jobs:
             sed -i "s/KERNEL_TESTING_PATCHVER:=*.*/KERNEL_TESTING_PATCHVER:=${{ matrix.target.kernel }}/g" target/linux/x86/Makefile  # 切换kernel测试内核
             # echo "src-link ${{ matrix.target.name }} $GITHUB_WORKSPACE/" >> ./feeds.conf.default  # 如果ipk插件安装包在本项目主目录里，那么直接读取主目录关于ipk通配项的链接到feeds.conf.default
             # echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }} ${{ matrix.target.branches }}" >> ./feeds.conf.default  # 配置feeds.conf.default拉取第三方ipk软件包，仅支持一级目录
+            sed -i "s/src-git/src-git-full/g" feeds.conf.default  # 替换feeds.conf.default参数
+            sed -i "s/src-git-full-full/src-git-full/g" feeds.conf.default  # 替换feeds.conf.default参数
             cat feeds.conf.default  # 读取feeds.conf.default内容
             ./scripts/feeds update -f -a  # 更新feeds软件包
             ./scripts/feeds install -f -a  # 安装feeds依赖的软件包
@@ -68,13 +70,16 @@ jobs:
           run: |
             cd openwrt-sdk  # 进入OpenWrt SDK目录
             make defconfig  # 读取配置
-            make package/${{ matrix.target.package }}/compile -j$(($(nproc)+1)) || make package/${{ matrix.target.package }}/compile -j1 V=s  # 编译ipk软件包
+            make package/feeds/${{ matrix.target.name }}/${{ matrix.target.package }}/compile -j$(($(nproc)+1)) || make package/${{ matrix.target.package }}/compile -j1 V=s  # 编译ipk软件包
             tree bin/packages/  # 显示生成的软件包目录结构
 
         - name: 整理文件
           run: |
             mkdir -p firmware  # 创建firmware文件夹
-            find openwrt-sdk/bin/packages/ -type f \( -name "*${{ matrix.target.name }}*" \) -exec mv {} ./firmware/ \; 2>/dev/null || true  # 拷贝ipk文件到firmware文件夹
+            mkdir -p ipk  # 创建名ipk文件夹
+            find openwrt-sdk/bin/packages/${{ matrix.target.arch }}/${{ matrix.target.name }}/ -type f \( -name "*.ipk" \) -exec mv {} ./firmware/ \; 2>/dev/null || true  # 拷贝ipk文件到firmware文件夹
+            cp -rf firmware/* ./ipk/  # 将firmware文件夹中的文件复制到ipk文件夹中
+            tar -czvf ipk.tar.gz ./ipk/ ; mv ipk.tar.gz ${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}.tar.gz  # 压缩ipk文件夹成tar.gz压缩文件
 
         - name: 上传固件目录
           uses: actions/upload-artifact@main  # 使用 actions/upload-artifact 操作来将构建的软件包存档
@@ -86,9 +91,9 @@ jobs:
         - name: 上传ipk发布
           uses: svenstaro/upload-release-action@master  # 使用 svenstaro/upload-release-action 操作来上传软件包到GitHub Release
           with:
-            repo_token: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub令牌进行身份验证，，后面TOKEN改成自己的令牌名称
+            repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 使用GitHub令牌进行身份验证，，后面TOKEN改成自己的令牌名称
             file_glob: true  # 匹配通配符以选择要上传的文件
             overwrite: true  # 如果已存在具有相同名称的文件，则覆盖它
-            file: ./firmware/*.*  # 要上传的文件，使用通配符匹配指定
+            file: ./${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}.tar.gz  # 要上传的文件，使用通配符匹配指定
             # tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}_${{ github.event.inputs.tag }}"  # 上传到GitHub Release的标签名称，包含一个变量，带release显示的版本号
             tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}"  # 上传到GitHub Release的标签名称，包含一个变量
