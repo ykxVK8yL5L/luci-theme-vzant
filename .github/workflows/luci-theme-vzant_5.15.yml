@@ -98,3 +98,19 @@ jobs:
             file: ./${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}.tar.gz  # 要上传的文件，使用通配符匹配指定
             # tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}_${{ github.event.inputs.tag }}"  # 上传到GitHub Release的标签名称，包含一个变量，带release显示的版本号
             tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}"  # 上传到GitHub Release的标签名称，包含一个变量
+
+        - name: 删除工作流
+          uses: Mattraks/delete-workflow-runs@main
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            repository: ${{ github.repository }}
+            retain_days: 1
+            keep_minimum_runs: 0
+
+        - name: 删除旧版本
+          uses: dev-drprasad/delete-older-releases@master
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            keep_latest: 1
+            delete_tags: true
