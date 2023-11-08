@@ -82,14 +82,14 @@ jobs:
             cp -rf firmware/* ./ipk/  # 将firmware文件夹中的文件复制到ipk文件夹中
             tar -czvf ipk.tar.gz ./ipk/ ; mv ipk.tar.gz ${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}.tar.gz  # 压缩ipk文件夹成tar.gz压缩文件
 
-        - name: 上传固件目录
+        - name: 上传artifact固件目录
           uses: actions/upload-artifact@main  # 使用 actions/upload-artifact 操作来将构建的软件包存档
           with:
             name: ${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}
             path: ./firmware/**  # 存档的文件路径，使用通配符匹配指定
             if-no-files-found: error  # 如果没有找到文件则报错
 
-        - name: 上传ipk发布
+        - name: 上传releases发布
           uses: svenstaro/upload-release-action@master  # 使用 svenstaro/upload-release-action 操作来上传软件包到GitHub Release
           with:
             repo_token: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub令牌进行身份验证，，后面TOKEN改成自己的令牌名称
@@ -99,18 +99,10 @@ jobs:
             # tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}_${{ github.event.inputs.tag }}"  # 上传到GitHub Release的标签名称，包含一个变量，带release显示的版本号
             tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}"  # 上传到GitHub Release的标签名称，包含一个变量
 
-        - name: 删除工作流
+        - name: 删除workflow工作流
           uses: Mattraks/delete-workflow-runs@main
           with:
             token: ${{ secrets.GITHUB_TOKEN }}
             repository: ${{ github.repository }}
             retain_days: 1
             keep_minimum_runs: 0
-
-        - name: 删除旧版本
-          uses: dev-drprasad/delete-older-releases@master
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            keep_latest: 1
-            delete_tags: true
