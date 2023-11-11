@@ -37,7 +37,7 @@ jobs:
         - name: 安装编译环境
           run: |
             sudo -E apt -yqq update  # 更新软件包列表
-            sudo -E apt -yqq install libfuse-dev ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev python3-setuptools || true  # 安装所需的构建工具和依赖
+            sudo -E apt -yqq install libfuse-dev nodejs npm ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev python3-setuptools || true  # 安装所需的构建工具和依赖
             sudo -E apt -yqq autoremove --purge  # 检测移除不需要的软件包及配置文件
             sudo -E apt -yqq autoclean  # 清理软件包工具的缓存
 
@@ -53,17 +53,17 @@ jobs:
             sed -i "s/KERNEL_PATCHVER:=*.*/KERNEL_PATCHVER:=${{ matrix.target.kernel }}/g" target/linux/${{ matrix.target.target }}/Makefile  # 切换kernel内核
             sed -i "s/KERNEL_TESTING_PATCHVER:=*.*/KERNEL_TESTING_PATCHVER:=${{ matrix.target.kernel }}/g" target/linux/${{ matrix.target.target }}/Makefile  # 切换kernel测试内核
             # echo "src-link ${{ matrix.target.name }} $GITHUB_WORKSPACE/" >> ./feeds.conf.default  # 如果ipk插件安装包在本项目主目录里，那么直接读取主目录关于ipk通配项的链接到feeds.conf.default
-            # echo "src-git ${{ matrix.target.name }} ${{ matrix.target.url }} ${{ matrix.target.branches }}" >> ./feeds.conf.default  # 配置feeds.conf.default拉取第三方ipk软件包，仅支持一级目录
+            # echo "src-git-full ${{ matrix.target.name }} ${{ matrix.target.url }} ${{ matrix.target.branches }}" >> ./feeds.conf.default  # 配置feeds.conf.default拉取第三方ipk软件包，仅支持一级目录
             sed -i "s/src-git/src-git-full/g" feeds.conf.default  # 替换feeds.conf.default参数
             sed -i "s/src-git-full-full/src-git-full/g" feeds.conf.default  # 替换feeds.conf.default参数
             cat feeds.conf.default  # 读取feeds.conf.default内容
-            ./scripts/feeds update -f -a  # 更新feeds软件包
-            ./scripts/feeds install -f -a  # 安装feeds依赖的软件包
+            ./scripts/feeds update -a  # 更新feeds软件包
+            ./scripts/feeds install -a  # 安装feeds依赖的软件包
 
         - name: 添加插件
           run: |
             chmod +x part.sh  # 附加权限给part.sh
-            cat ${{ matrix.target.package }}.config >> openwrt-sdk/.config  # 勾选配置项构建编译条件
+            cat ${{ matrix.target.package }}.config > openwrt-sdk/.config  # 勾选配置项构建编译条件
             cd openwrt-sdk  # 进入OpenWrt SDK目录
             $GITHUB_WORKSPACE/part.sh  # 运行part.sh
 
@@ -100,9 +100,9 @@ jobs:
             tag: "refs/tags/${{ matrix.target.arch }}-${{ matrix.target.package }}_${{ matrix.target.kernel }}"  # 上传到GitHub Release的标签名称，包含一个变量
 
         - name: 删除workflow工作流
-          uses: Mattraks/delete-workflow-runs@main
+          uses: Mattraks/delete-workflow-runs@main  # 使用Mattraks/delete-workflow-runs按规则删除workflow工作流
           with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            repository: ${{ github.repository }}
-            retain_days: 1
-            keep_minimum_runs: 0
+            token: ${{ secrets.GITHUB_TOKEN }}  # 使用GitHub令牌进行身份验证，，后面TOKEN改成自己的令牌名称
+            repository: ${{ github.repository }}  # 存储库的默认名称
+            retain_days: 1  # 每个workflow工作流最低的保留天数
+            keep_minimum_runs: 1  # 每个workflow工作流最低的保留显示次数
